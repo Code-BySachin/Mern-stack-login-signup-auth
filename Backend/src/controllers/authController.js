@@ -52,8 +52,6 @@ export const login = async (req,res)=>{
         }
         
         const isMatch = await bcrypt.compare(password,user.password);
-        console.log('ismatch: ',isMatch);
-        
         
         if(!isMatch){
             return res.json({success:false, message:'Invalid password'});
@@ -61,7 +59,7 @@ export const login = async (req,res)=>{
         const token = jwt.sign({user:user._id},process.env.JWT_SECRET,{expiresIn:'7d'})
         res.cookie('token',token,{
             httpOnly:true,
-            sameSite:process.env.NODE_ENV === 'production',
+            sameSite:process.env.NODE_ENV === 'production'?'none':'strict',
             secure:process.env.NODE_ENV === 'production',
             maxAge: 7*24*60*60*1000
         })
@@ -73,4 +71,19 @@ export const login = async (req,res)=>{
     }
 
     
+}
+
+export const logout = async (req,res)=>{
+    try{
+
+        res.clearCookie('token',{
+            httpOnly:true,
+            sameSite:process.env.NODE_ENV === 'production'?'none':'strict',
+            secure: process.env.NODE_ENV ==='production'
+        })
+
+        return res.json({success:true,message:'Logged out'})
+    }catch(err){
+        return res.json({success:false,message:err.message})
+    }
 }
