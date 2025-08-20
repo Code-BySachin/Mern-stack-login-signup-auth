@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/userModel.js';
+import transporter from '../config/nodemailer.js';
+
 
 export const register = async (req,res)=>{
     const {name,email,password} =req.body || {};
@@ -30,7 +32,14 @@ export const register = async (req,res)=>{
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        return res.json({success:true,message:'User account created'})
+        const mail = await transporter.sendMail({
+            from:process.env.SENDER_MAIL,
+            to:email,
+            subject:'Welcome to CodeBySachin',
+            text:`You have successfully registered to CodeBySachin website. Your account has been created with email id: ${email}`
+        })
+        
+        return res.json({success:true,message:'User account created',MailMessageId:mail.messageId})
 
     }catch(err){
         return res.json({success:false,message:err.message})
