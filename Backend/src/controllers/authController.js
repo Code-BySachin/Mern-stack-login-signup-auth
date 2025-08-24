@@ -5,7 +5,7 @@ import transporter from '../config/nodemailer.js';
 
 
 export const register = async (req, res) => {
-    const { name, email, password } = req.body || {};
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
         return res.json({ success: false, message: 'All fields are mandatory' })
@@ -47,7 +47,7 @@ export const register = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-    const { email, password } = req.body || {};
+    const { email, password } = req.body;
 
     if (!email || !password) {
         return res.json({ success: false, message: 'All fields are mandatory !' })
@@ -65,7 +65,7 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.json({ success: false, message: 'Invalid password' });
         }
-        const token = jwt.sign({ user: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
         res.cookie('token', token, {
             httpOnly: true,
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
@@ -99,7 +99,7 @@ export const logout = async (req, res) => {
 
 export const sendVerifyOtp = async (req, res) => {
     try {
-        const { userId } = req.body || {};
+        const { userId } = req.body;
 
         const user = await userModel.findById(userId);
 
