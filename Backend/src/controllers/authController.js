@@ -167,3 +167,45 @@ export const verifyEmail = async (req,res)=>{
         return res.json({success:false, message:err.message})
     }
 }
+
+// send reset otp
+export const sendResetOtp = async (req,res)=>{
+    try{
+        const {userId} = req.body;
+        
+        const user =  await userModel.findById(userId);
+
+        if(!user){
+            return res.json({success:false, message:'Invalid user ID'});
+        }
+
+        const otp = String(Math.floor(100000 + Math.random() * 999999));
+
+        user.resetOtp = otp;
+        user.resetOtpExpireAt = Date.now() + 10 * 60 * 1000;
+
+        await user.save()
+
+        const mailOptions = {
+            from: process.env.SENDER_MAIL,
+            to: user.email,
+            subject: 'Account reset OTP',
+            text: `Hello,
+
+Your One-Time Password (OTP) is: ${otp}
+
+This code is valid for the next 10 minutes. Please do not share it with anyone.
+
+If you did not request this, please ignore this email.
+
+Thank you,`
+        }
+
+        await transporter.sendMail(mailOptions);
+
+        return res.json({success:true,message:'Reset OTP sent'})
+
+    }catch(err){
+        return res.json({success:false, message: err.message})
+    }
+}
