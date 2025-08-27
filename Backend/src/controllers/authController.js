@@ -209,3 +209,37 @@ Thank you,`
         return res.json({success:false, message: err.message})
     }
 }
+
+// verify reset otp and change password
+export const verifyResetOtp = async (req,res)=>{
+    const {userId,otp,newPassword} = req.body;
+    if(!userId || !otp){
+        return res.json({success:false, message:'Required user Id or otp'});
+    }
+    try{
+        const user = await userModel.findById(userId);        
+        if(!user){
+            return res.json({success:false, message:'Invalid user Id'})
+        }
+
+        if(user.resetOtp !== otp){
+            return res.json({success:false, message:'Invalid otp'})
+        }
+        if(user.resetOtpExpAt < Date.now()){
+            return res.json({success:false, message:'Reset otp expired'})
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+
+        user.password=hashedPassword;
+        user.resetOtp='';
+        user.resetOtpExpireAt=0;
+
+        await user.save();
+
+        return res.json({success:true, message:'Password reset successfully'})
+
+    }catch(err){
+        return res.json({success:false, message:err.message})
+    }
+}
