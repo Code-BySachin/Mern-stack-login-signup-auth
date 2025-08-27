@@ -107,7 +107,7 @@ export const sendVerifyOtp = async (req, res) => {
             return res.json({ success: false, message: 'Account is already verified' })
         }
 
-        const otp = String(Math.floor(100000 + Math.random() * 999999));
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
 
         user.verifyOtp = otp;
         user.verifyOtpExpireAt = Date.now() + 10 * 60 * 1000;
@@ -179,7 +179,7 @@ export const sendResetOtp = async (req,res)=>{
             return res.json({success:false, message:'Invalid user ID'});
         }
 
-        const otp = String(Math.floor(100000 + Math.random() * 999999));
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
 
         user.resetOtp = otp;
         user.resetOtpExpireAt = Date.now() + 10 * 60 * 1000;
